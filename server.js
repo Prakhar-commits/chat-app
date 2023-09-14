@@ -1,12 +1,21 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
+const jsonServer = require("json-server");
+const low = require("lowdb");
+const FileSync = require("lowdb/adapters/FileSync");
+
+const adapter = new FileSync("db.json");
+const db = low(adapter);
+
+db.defaults({ messages: [], users: [] }).write();
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 let onlineUsers = [];
 
+app.use("/api", jsonServer.router("db.json"));
 app.use(express.static(__dirname + "/public"));
 io.on("connection", (socket) => {
   console.log("a user connected");
