@@ -17,6 +17,7 @@ let onlineUsers = [];
 
 app.use("/api", jsonServer.router("db.json"));
 app.use(express.static(__dirname + "/public"));
+
 io.on("connection", (socket) => {
   console.log("a user connected");
 
@@ -36,6 +37,14 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("chat message", (msg) => {
+    db.get("messages")
+      .push({
+        username: socket.username,
+        message: msg,
+        timestamp: new Date().toISOString(),
+      })
+      .write();
+
     io.emit("chat message", msg);
   });
 });
